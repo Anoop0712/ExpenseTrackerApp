@@ -1,4 +1,4 @@
-package com.example.expensetrackerapp
+package com.example.expensetrackerapp.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
