@@ -4,17 +4,20 @@ import android.content.Context
 import androidx.room.Room
 import com.example.expensetrackerapp.data.local.ExpenseDao
 import com.example.expensetrackerapp.data.local.ExpenseDatabase
-import com.example.expensetrackerapp.data.repository.ExpenseRepository
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-class DatabaseModule {
+@InstallIn(SingletonComponent::class)
+object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideExpenseDatabase(context: Context): ExpenseDatabase {
+    fun provideExpenseDatabase(@ApplicationContext context: Context): ExpenseDatabase {
         return Room.databaseBuilder(
             context,
             ExpenseDatabase::class.java,
@@ -26,11 +29,5 @@ class DatabaseModule {
     @Singleton
     fun provideExpenseDao(db: ExpenseDatabase): ExpenseDao {
         return db.expenseDao()
-    }
-
-    @Provides
-    @Singleton
-    fun provideExpenseRepository(dao: ExpenseDao): ExpenseRepository {
-        return ExpenseRepository(dao)
     }
 }
