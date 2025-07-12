@@ -19,7 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,7 +29,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SubmitWithAnimation(buttonText: String, delay: Long, isEnable: Boolean, operation: () -> Unit) {
-    var showMessage by remember { mutableStateOf(false) }
+    var showMessage by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier

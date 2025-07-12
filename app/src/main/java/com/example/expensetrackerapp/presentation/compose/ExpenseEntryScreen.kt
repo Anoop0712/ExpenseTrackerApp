@@ -31,7 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,12 +56,12 @@ import java.io.FileOutputStream
 fun ExpenseEntryScreen(navController: NavHostController, viewModel: ExpenseViewModel) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val title = remember { mutableStateOf("") }
-    val amount = remember { mutableStateOf("") }
-    val selectedCategory = remember { mutableStateOf(CategoryType.OTHER) }
-    val notes = remember { mutableStateOf("") }
+    val title = rememberSaveable { mutableStateOf("") }
+    val amount = rememberSaveable { mutableStateOf("") }
+    val selectedCategory = rememberSaveable { mutableStateOf(CategoryType.OTHER) }
+    val notes = rememberSaveable { mutableStateOf("") }
 
-    var imageUri by remember { mutableStateOf("") }
+    var imageUri by rememberSaveable { mutableStateOf("") }
 
     // Image Picker Launcher
     val imagePickerLauncher = rememberLauncherForActivityResult(
@@ -214,10 +214,10 @@ fun ExpenseEntryScreen(navController: NavHostController, viewModel: ExpenseViewM
                     operation = {
                         keyboardController?.hide()
                         val expense = Expense(
-                            title = title.value,
+                            title = title.value.lowercase(),
                             amount = amount.value.toInt(),
                             category = selectedCategory.value,
-                            notes = notes.value,
+                            notes = notes.value.lowercase(),
                             receiptUri = imageUri
                         )
                         viewModel.addExpense(expense)

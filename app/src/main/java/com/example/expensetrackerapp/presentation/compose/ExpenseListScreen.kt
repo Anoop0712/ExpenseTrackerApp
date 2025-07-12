@@ -33,7 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,9 +52,9 @@ import java.time.LocalDateTime
 fun ExpenseListScreen(navController: NavHostController, viewModel: ExpenseViewModel) {
     val context = LocalContext.current
     val state by viewModel.uiState.collectAsState()
-    var fabExpanded by remember { mutableStateOf(false) }
-    var showDatePicker by remember { mutableStateOf(false) }
-    val isToday by remember { mutableStateOf(state.selectedDate == LocalDate.now()) }
+    var fabExpanded by rememberSaveable { mutableStateOf(false) }
+    var showDatePicker by rememberSaveable { mutableStateOf(false) }
+    val isToday by rememberSaveable { mutableStateOf(state.selectedDate == LocalDate.now()) }
 
     val grouped = when (state.groupingMode) {
         GroupingMode.CATEGORY -> state.expenses.groupBy { it.category }
@@ -122,12 +122,12 @@ fun ExpenseListScreen(navController: NavHostController, viewModel: ExpenseViewMo
             ) {
 
                 Text(
-                    text = "Total count: ${state.expenses.size}",
+                    text = "Total Count: ${state.expenses.size}",
                     style = MaterialTheme.typography.titleMedium
                 )
 
                 Text(
-                    text = "Total count: ${state.expenses.sumOf { it.amount }}",
+                    text = "Total Amount: ${state.expenses.sumOf { it.amount }}",
                     style = MaterialTheme.typography.titleMedium
                 )
             }
