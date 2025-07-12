@@ -18,40 +18,45 @@ class ExpenseViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
-        loadTodayExpenses()
-    }
-
-    private val _selectedDate = MutableStateFlow(LocalDate.now())
-    val selectedDate: StateFlow<LocalDate> = _selectedDate
-
-    fun setSelectedDate(date: LocalDate) {
-        _selectedDate.value = date
+        loadExpensesForDate(LocalDate.now())
     }
 
     private val _uiState = MutableStateFlow(ExpenseUiState())
     val uiState: StateFlow<ExpenseUiState> = _uiState.asStateFlow()
 
-    fun loadTodayExpenses() {
+    private val _totalAmountSpentToday = MutableStateFlow(0)
+    val totalAmountSpentToday: StateFlow<Int> = _totalAmountSpentToday.asStateFlow()
+
+    fun loadExpensesForDate(date: LocalDate) {
         viewModelScope.launch {
-            repository.getExpensesForDate(LocalDate.now()).collect { list ->
+            repository.getExpensesForDate(date).collect { list ->
                 _uiState.value = _uiState.value.copy(
+                    selectedDate = date,
                     expenses = list,
                     totalAmount = list.sumOf { it.amount }
                 )
             }
+        }
+    }
 
+    fun getTotalAmountSpentToday() {
+        viewModelScope.launch {
+            repository.getExpensesForDate(LocalDate.now()).collect { list ->
+               _totalAmountSpentToday.value = list.sumOf { it.amount }
+            }
         }
     }
 
     fun addExpense(expense: Expense) {
         viewModelScope.launch {
             repository.addExpense(expense)
-            loadTodayExpenses()
+            loadExpensesForDate(_uiState.value.selectedDate)
         }
     }
 }
 
 data class ExpenseUiState(
     val expenses: List<Expense> = emptyList(),
-    val totalAmount: Int = 0
+    val totalAmount: Int = 0,
+    val selectedDate: LocalDate = LocalDate.now()
 )

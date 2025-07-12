@@ -32,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.expensetrackerapp.data.local.CategoryType
 import com.example.expensetrackerapp.data.local.Expense
 import com.example.expensetrackerapp.presentation.ExpenseViewModel
 import java.io.File
@@ -60,7 +62,7 @@ fun ExpenseEntryScreen(navController: NavHostController, viewModel: ExpenseViewM
     val keyboardController = LocalSoftwareKeyboardController.current
     val title = remember { mutableStateOf("") }
     val amount = remember { mutableStateOf("") }
-    val selectedCategory = remember { mutableStateOf("") }
+    val selectedCategory = remember { mutableStateOf(CategoryType.OTHER) }
     val notes = remember { mutableStateOf("") }
 
     var imageUri by remember { mutableStateOf("") }
@@ -70,6 +72,10 @@ fun ExpenseEntryScreen(navController: NavHostController, viewModel: ExpenseViewM
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         imageUri = copyUriToInternalStorage(context, uri)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.getTotalAmountSpentToday()
     }
 
     Scaffold(
@@ -82,7 +88,7 @@ fun ExpenseEntryScreen(navController: NavHostController, viewModel: ExpenseViewM
 
         Column(modifier = Modifier.padding(padding).padding(16.dp)) {
             Text(
-                text = "Total Spent Today: ₹${viewModel.uiState.collectAsState().value.totalAmount}",
+                text = "Total Spent Today: ₹${viewModel.totalAmountSpentToday.collectAsState().value}",
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
@@ -166,9 +172,6 @@ fun ExpenseEntryScreen(navController: NavHostController, viewModel: ExpenseViewM
                     )
                     keyboardController?.hide()
                     viewModel.addExpense(expense)
-                    title.value = ""
-                    amount.value = ""
-                    notes.value = ""
                     navController.popBackStack()
                     Toast.makeText(context, "Expense Added", Toast.LENGTH_SHORT).show()
                 }
@@ -183,9 +186,9 @@ fun ExpenseEntryScreen(navController: NavHostController, viewModel: ExpenseViewM
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CategoryDropdown(selectedCategory: String, onClick: (String) -> Unit) {
+fun CategoryDropdown(selectedCategory: CategoryType, onClick: (CategoryType) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
-    val categories = listOf("Staff", "Travel", "Food", "Utility")
+    val categories = CategoryType.values().map { it.name }
 
     ExposedDropdownMenuBox(
         modifier = Modifier
@@ -196,7 +199,7 @@ fun CategoryDropdown(selectedCategory: String, onClick: (String) -> Unit) {
         }
     ) {
         TextField(
-            value = selectedCategory,
+            value = selectedCategory.name,
             onValueChange = {},
             readOnly = true,
             label = { Text("Category") },
@@ -217,7 +220,7 @@ fun CategoryDropdown(selectedCategory: String, onClick: (String) -> Unit) {
                 DropdownMenuItem(
                     text = { Text(selectionOption) },
                     onClick = {
-                        onClick.invoke(selectionOption)
+                        onClick.invoke(CategoryType.valueOf(selectionOption))
                         expanded.value = false
                     }
                 )
