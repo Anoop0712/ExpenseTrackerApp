@@ -7,7 +7,9 @@ import com.example.expensetrackerapp.data.repository.ExpenseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -15,13 +17,29 @@ class ExpenseViewModel @Inject constructor(
     private val repository: ExpenseRepository
 ) : ViewModel() {
 
-    private val _expenses = MutableStateFlow<List<Expense>>(emptyList())
-    val expenses: StateFlow<List<Expense>> = _expenses
+    init {
+        loadTodayExpenses()
+    }
+
+    private val _selectedDate = MutableStateFlow(LocalDate.now())
+    val selectedDate: StateFlow<LocalDate> = _selectedDate
+
+    fun setSelectedDate(date: LocalDate) {
+        _selectedDate.value = date
+    }
+
+    private val _uiState = MutableStateFlow(ExpenseUiState())
+    val uiState: StateFlow<ExpenseUiState> = _uiState.asStateFlow()
 
     fun loadTodayExpenses() {
         viewModelScope.launch {
-            val today = System.currentTimeMillis()
-            _expenses.value = repository.getExpensesForDate(today)
+            repository.getExpensesForDate(LocalDate.now()).collect { list ->
+                _uiState.value = _uiState.value.copy(
+                    expenses = list,
+                    totalAmount = list.sumOf { it.amount }
+                )
+            }
+
         }
     }
 
@@ -32,3 +50,8 @@ class ExpenseViewModel @Inject constructor(
         }
     }
 }
+
+data class ExpenseUiState(
+    val expenses: List<Expense> = emptyList(),
+    val totalAmount: Int = 0
+)

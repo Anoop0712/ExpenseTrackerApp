@@ -82,11 +82,19 @@ dependencies {
 
     // Hilt core
     implementation("com.google.dagger:hilt-android:2.48")
-// Hilt compiler
+    // Hilt compiler
     kapt("com.google.dagger:hilt-android-compiler:2.48")
 
-// ViewModel
+    // ViewModel
     implementation(libs.androidx.lifecycle.viewmodel)
+
+    // Navigation
+    implementation("androidx.navigation:navigation-runtime-ktx:2.3.5")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.3.5")
+    implementation("androidx.navigation:navigation-ui-ktx:2.3.5")
+    implementation("androidx.navigation:navigation-compose:2.4.2")
+
+    implementation("io.coil-kt:coil-compose:2.2.2")
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     debugImplementation(libs.androidx.ui.tooling)

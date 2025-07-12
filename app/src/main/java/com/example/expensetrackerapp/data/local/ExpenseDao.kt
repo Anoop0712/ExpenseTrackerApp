@@ -5,6 +5,8 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
 interface ExpenseDao {
@@ -12,15 +14,9 @@ interface ExpenseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExpense(expense: Expense)
 
-    @Query("SELECT * FROM expenses WHERE date(timestamp / 1000, 'unixepoch') = date(:date / 1000, 'unixepoch')")
-    suspend fun getExpensesForDate(date: Long): List<Expense>
+    @Query("SELECT * FROM expenses WHERE date = :date")
+    fun getExpensesByDate(date: LocalDate): Flow<List<Expense>>
 
-    @Query("SELECT * FROM expenses ORDER BY timestamp DESC")
-    suspend fun getAllExpenses(): List<Expense>
-
-    @Delete
-    suspend fun deleteExpense(expense: Expense)
-
-    @Query("SELECT SUM(amount) FROM expenses WHERE date(timestamp / 1000, 'unixepoch') = date(:date / 1000, 'unixepoch')")
-    suspend fun getTotalForDate(date: Long): Double
+    @Query("SELECT * FROM expenses")
+    fun getAllExpenses(): Flow<List<Expense>>
 }
