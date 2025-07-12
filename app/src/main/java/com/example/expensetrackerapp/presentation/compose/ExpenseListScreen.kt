@@ -2,6 +2,7 @@ package com.example.expensetrackerapp.presentation.compose
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -39,8 +43,10 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.expensetrackerapp.data.local.Expense
 import com.example.expensetrackerapp.presentation.ExpenseViewModel
+import com.example.expensetrackerapp.presentation.GroupingMode
 import com.example.expensetrackerapp.toCapitalizeWords
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Composable
 fun ExpenseListScreen(navController: NavHostController, viewModel: ExpenseViewModel) {
@@ -49,6 +55,13 @@ fun ExpenseListScreen(navController: NavHostController, viewModel: ExpenseViewMo
     var fabExpanded by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     val isToday by remember { mutableStateOf(state.selectedDate == LocalDate.now()) }
+
+    val grouped = when (state.groupingMode) {
+        GroupingMode.CATEGORY -> state.expenses.groupBy { it.category }
+        GroupingMode.HOUR_TIME -> state.expenses
+            .sortedByDescending { it.time } // optional: if you want chronological
+            .groupBy { it.time.hour } // or group by time component if you have time
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -82,7 +95,7 @@ fun ExpenseListScreen(navController: NavHostController, viewModel: ExpenseViewMo
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
+                .padding(top = 16.dp)
         ) {
 
             Text(
@@ -101,7 +114,36 @@ fun ExpenseListScreen(navController: NavHostController, viewModel: ExpenseViewMo
                     style = MaterialTheme.typography.titleMedium
                 )
             }
-            Items(state.expenses)
+
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                Text(
+                    text = "Total count: ${state.expenses.size}",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Text(
+                    text = "Total count: ${state.expenses.sumOf { it.amount }}",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+
+            if (state.expenses.isNotEmpty()) {
+                ExpandItemUI(
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    label = "GroupBy",
+                    items = GroupingMode.values().map { it.name },
+                    onClickItem = {
+                        viewModel.setGroupingMode(GroupingMode.valueOf(it))
+                    },
+                    selectedValue = state.groupingMode.name
+                )
+            }
+            Items(grouped, state.groupingMode)
             if (state.expenses.isEmpty()) Text("No expenses found")
         }
         if (showDatePicker) {
@@ -131,19 +173,34 @@ fun ExpenseListScreen(navController: NavHostController, viewModel: ExpenseViewMo
 
 @Composable
 private fun Items(
-    items: List<Expense>
+    items: Map<out Any, List<Expense>>,
+    groupingMode: GroupingMode,
 ) {
-    Column(
-        modifier = Modifier
-            .padding(top = 16.dp)
-            .fillMaxWidth(),
+    val state = LazyListState()
+    LazyColumn(
+        state = state,
+        modifier = Modifier.padding(bottom = 24.dp)
     ) {
-        items.forEachIndexed { _, item ->
-            Item(
-                expense = item
-            )
+        items.forEach { (group, items) ->
+            item {
+                Text(
+                    text = when (groupingMode) {
+                        GroupingMode.CATEGORY -> group.toString()
+                        GroupingMode.HOUR_TIME -> {
+                            if (group is LocalDateTime) group.toLocalTime().toString()
+                            else group.toString()
+                        }
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+            }
+            items(items) { expense ->
+                Item(expense)
+            }
         }
     }
+
 }
 
 @Composable
@@ -152,8 +209,7 @@ private fun Item(
 ) {
     Card(
         modifier = Modifier
-            .padding(top = 12.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth().padding(8.dp),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {

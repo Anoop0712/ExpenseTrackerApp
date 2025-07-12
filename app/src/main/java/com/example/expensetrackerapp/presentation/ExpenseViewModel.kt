@@ -53,10 +53,20 @@ class ExpenseViewModel @Inject constructor(
             loadExpensesForDate(_uiState.value.selectedDate)
         }
     }
+
+    fun setGroupingMode(mode: GroupingMode) {
+        _uiState.value = _uiState.value.copy(groupingMode = mode)
+    }
 }
 
 data class ExpenseUiState(
     val expenses: List<Expense> = emptyList(),
     val totalAmount: Int = 0,
-    val selectedDate: LocalDate = LocalDate.now()
+    val selectedDate: LocalDate = LocalDate.now(),
+    val groupingMode: GroupingMode = GroupingMode.CATEGORY
 )
+
+enum class GroupingMode {
+    CATEGORY,
+    HOUR_TIME
+}

@@ -9,22 +9,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -86,144 +81,136 @@ fun ExpenseEntryScreen(navController: NavHostController, viewModel: ExpenseViewM
         }
     ) { padding ->
 
-        Column(modifier = Modifier.padding(padding).padding(16.dp)) {
-            Text(
-                text = "Total Spent Today: ₹${viewModel.totalAmountSpentToday.collectAsState().value}",
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+        LazyColumn(
+            modifier = Modifier
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            item {
+                Text(
+                    text = "Total Spent Today: ₹${viewModel.totalAmountSpentToday.collectAsState().value}",
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Box(
-                modifier = Modifier
-                    .size(75.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.LightGray.copy(alpha = 0.2f))
-                    .clickable { imagePickerLauncher.launch("image/*") },
-                contentAlignment = Alignment.Center
-            ) {
-                if (imageUri.isNotBlank()) {
-                    Image(
-                        painter = rememberAsyncImagePainter(model = imageUri),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Icon(Icons.Default.Add, contentDescription = "Add Image", tint = Color.Red)
+            item {
+                Box(
+                    modifier = Modifier
+                        .size(75.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.LightGray.copy(alpha = 0.2f))
+                        .clickable { imagePickerLauncher.launch("image/*") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (imageUri.isNotBlank()) {
+                        Image(
+                            painter = rememberAsyncImagePainter(model = imageUri),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Icon(Icons.Default.Add, contentDescription = "Add Image", tint = Color.Red)
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Text fields
-            OutlinedTextField(
-                value = title.value,
-                onValueChange = { title.value = it },
-                label = { Text("Title") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = amount.value,
-                onValueChange = { amount.value = it },
-                label = { Text("Amount") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            CategoryDropdown(selectedCategory.value) {
-                selectedCategory.value = it
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                OutlinedTextField(
+                    value = title.value,
+                    onValueChange = { title.value = it },
+                    label = { Text("Title") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
 
-            Text(
-                text = "Expense Notes",
-                style = MaterialTheme.typography.titleMedium
-            )
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
-            TextField(
-                value = notes.value,
-                onValueChange = { if (it.length <= 100) notes.value = it },
-                label = { Text("Notes") },
-                modifier = Modifier
-                    .fillMaxWidth(),
-            )
+            item {
+                OutlinedTextField(
+                    value = amount.value,
+                    onValueChange = { amount.value = it },
+                    label = { Text("Amount") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
-            Button(modifier = Modifier.fillMaxWidth(), onClick = {
-                if (title.value.isNotBlank() && amount.value.toIntOrNull() != null && amount.value.toInt() > 0) {
-                    val expense = Expense(
-                        title = title.value,
-                        amount = amount.value.toInt(),
-                        category = selectedCategory.value,
-                        notes = notes.value,
-                        receiptUri = imageUri
-                    )
-                    keyboardController?.hide()
-                    viewModel.addExpense(expense)
+            item {
+                ExpandItemUI(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    label = "Category",
+                    items = CategoryType.values().map { it.name },
+                    selectedValue = selectedCategory.value.name
+
+                ) {
+                    selectedCategory.value = CategoryType.valueOf(it)
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            item {
+                Text(
+                    text = "Expense Notes",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+
+            item {
+                TextField(
+                    value = notes.value,
+                    onValueChange = { if (it.length <= 100) notes.value = it },
+                    label = { Text("Notes") },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            item {
+                SubmitWithAnimation(
+                    "Add Expense",
+                    2000,
+                    title.value.isNotBlank() && amount.value.toIntOrNull() != null && amount.value.toInt() > 0,
+                    operation = {
+                        keyboardController?.hide()
+                        val expense = Expense(
+                            title = title.value,
+                            amount = amount.value.toInt(),
+                            category = selectedCategory.value,
+                            notes = notes.value,
+                            receiptUri = imageUri
+                        )
+                        viewModel.addExpense(expense)
+                    }
+                ) {
                     navController.popBackStack()
                     Toast.makeText(context, "Expense Added", Toast.LENGTH_SHORT).show()
                 }
-            }) {
-                Text("Add Expense")
-            }
-        }
-    }
-
-
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CategoryDropdown(selectedCategory: CategoryType, onClick: (CategoryType) -> Unit) {
-    val expanded = remember { mutableStateOf(false) }
-    val categories = CategoryType.values().map { it.name }
-
-    ExposedDropdownMenuBox(
-        modifier = Modifier
-            .fillMaxWidth(),
-        expanded = expanded.value,
-        onExpandedChange = {
-            expanded.value = !expanded.value
-        }
-    ) {
-        TextField(
-            value = selectedCategory.name,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Category") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded.value)
-            },
-            modifier = Modifier
-                .menuAnchor() // Required for proper positioning
-                .fillMaxWidth()
-        )
-
-        ExposedDropdownMenu(
-            modifier = Modifier.exposedDropdownSize(),
-            expanded = expanded.value,
-            onDismissRequest = { expanded.value = false }
-        ) {
-            categories.forEach { selectionOption ->
-                DropdownMenuItem(
-                    text = { Text(selectionOption) },
-                    onClick = {
-                        onClick.invoke(CategoryType.valueOf(selectionOption))
-                        expanded.value = false
-                    }
-                )
             }
         }
     }

@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import com.example.expensetrackerapp.presentation.navigation.ExpenseNavGraph
 import com.example.expensetrackerapp.ui.theme.ExpenseTrackerAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,7 +32,7 @@ class MainActivity : ComponentActivity() {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(WindowInsets.systemBars.asPaddingValues()),
+                        .padding(horizontal = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     ExpenseNavGraph(viewModel = expenseViewModel)
