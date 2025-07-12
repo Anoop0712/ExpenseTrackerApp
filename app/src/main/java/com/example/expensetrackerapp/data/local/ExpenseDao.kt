@@ -19,4 +19,10 @@ interface ExpenseDao {
 
     @Query("SELECT * FROM expenses")
     fun getAllExpenses(): Flow<List<Expense>>
+
+    @Query("""
+        SELECT * FROM expenses 
+        WHERE title = :title AND amount = :amount AND category = :category
+    """)
+    suspend fun findDuplicateExpense(title: String, amount: Int, category: CategoryType): List<Expense>
 }

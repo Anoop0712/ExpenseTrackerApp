@@ -44,7 +44,7 @@ import coil.compose.AsyncImage
 import com.example.expensetrackerapp.data.local.Expense
 import com.example.expensetrackerapp.presentation.ExpenseViewModel
 import com.example.expensetrackerapp.presentation.GroupingMode
-import com.example.expensetrackerapp.toCapitalizeWords
+import com.example.expensetrackerapp.util.toCapitalizeWords
 import java.time.LocalDate
 import java.time.LocalDateTime
 

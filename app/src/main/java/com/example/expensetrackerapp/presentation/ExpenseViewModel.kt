@@ -24,8 +24,14 @@ class ExpenseViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ExpenseUiState())
     val uiState: StateFlow<ExpenseUiState> = _uiState.asStateFlow()
 
+    private val _last7daysUiState = MutableStateFlow(emptyList<Expense>())
+    val last7daysUiState: StateFlow<List<Expense>> = _last7daysUiState.asStateFlow()
+
     private val _totalAmountSpentToday = MutableStateFlow(0)
     val totalAmountSpentToday: StateFlow<Int> = _totalAmountSpentToday.asStateFlow()
+
+    private val _expenseAdded = MutableStateFlow(ExpenseAddedType.DEFAULT)
+    val expenseAdded: StateFlow<ExpenseAddedType> = _expenseAdded.asStateFlow()
 
     fun loadExpensesForDate(date: LocalDate) {
         viewModelScope.launch {
@@ -49,14 +55,33 @@ class ExpenseViewModel @Inject constructor(
 
     fun addExpense(expense: Expense) {
         viewModelScope.launch {
-            repository.addExpense(expense)
-            loadExpensesForDate(_uiState.value.selectedDate)
+            val result = repository.addExpenseIfNotDuplicate(expense)
+            if (result) {
+                _expenseAdded.value = ExpenseAddedType.ADDED
+                loadExpensesForDate(_uiState.value.selectedDate)
+            } else {
+                _expenseAdded.value = ExpenseAddedType.FAILED
+            }
+
         }
     }
 
     fun setGroupingMode(mode: GroupingMode) {
         _uiState.value = _uiState.value.copy(groupingMode = mode)
     }
+
+    fun loadExpensesForLast7Days() {
+        val today = LocalDate.now()
+        val last7Days = (0..6).map { today.minusDays(it.toLong()) }
+
+        viewModelScope.launch {
+            repository.getAllExpenses().collect { allExpenses ->
+                val filtered = allExpenses.filter { it.date in last7Days }
+                _last7daysUiState.value = filtered
+            }
+        }
+    }
+
 }
 
 data class ExpenseUiState(
@@ -69,4 +94,10 @@ data class ExpenseUiState(
 enum class GroupingMode {
     CATEGORY,
     HOUR_TIME
+}
+
+enum class ExpenseAddedType {
+    ADDED,
+    FAILED,
+    DEFAULT;
 }

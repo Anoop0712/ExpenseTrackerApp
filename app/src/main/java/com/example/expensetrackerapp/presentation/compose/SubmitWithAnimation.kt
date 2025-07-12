@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
 @Composable
-fun SubmitWithAnimation(buttonText: String, delay: Long, isEnable: Boolean, operation: () -> Unit, close: () -> Unit) {
+fun SubmitWithAnimation(buttonText: String, delay: Long, isEnable: Boolean, operation: () -> Unit) {
     var showMessage by remember { mutableStateOf(false) }
 
     Column(
@@ -54,7 +54,7 @@ fun SubmitWithAnimation(buttonText: String, delay: Long, isEnable: Boolean, oper
             exit = fadeOut(animationSpec = tween(500)) + slideOutVertically()
         ) {
             Text(
-                text = "Entry Added!",
+                text = "Entry is being added",
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.Green,
                 modifier = Modifier.padding(top = 8.dp)
@@ -66,7 +66,6 @@ fun SubmitWithAnimation(buttonText: String, delay: Long, isEnable: Boolean, oper
             LaunchedEffect(Unit) {
                 delay(delay) // 2 seconds
                 showMessage = false
-                close.invoke()
             }
         }
     }

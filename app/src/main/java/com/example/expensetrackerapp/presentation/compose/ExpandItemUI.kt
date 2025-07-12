@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.expensetrackerapp.R
-import com.example.expensetrackerapp.toCapitalizeWords
+import com.example.expensetrackerapp.util.toCapitalizeWords
 
 @Composable
 fun ExpandItemUI(
@@ -81,7 +81,7 @@ fun ExpandItemUI(
                             .fillMaxWidth()
                             .heightIn(max = 144.dp)
                     ) {
-                        itemsIndexed(items) { index, item ->
+                        itemsIndexed(items) { _, item ->
                             Text(
                                 text = item.toCapitalizeWords(),
                                 modifier = Modifier

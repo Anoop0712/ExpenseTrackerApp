@@ -47,6 +47,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.expensetrackerapp.data.local.CategoryType
 import com.example.expensetrackerapp.data.local.Expense
+import com.example.expensetrackerapp.presentation.ExpenseAddedType
 import com.example.expensetrackerapp.presentation.ExpenseViewModel
 import java.io.File
 import java.io.FileOutputStream
@@ -71,6 +72,20 @@ fun ExpenseEntryScreen(navController: NavHostController, viewModel: ExpenseViewM
 
     LaunchedEffect(Unit) {
         viewModel.getTotalAmountSpentToday()
+    }
+
+    val expenseAddedType by viewModel.expenseAdded.collectAsState()
+
+    LaunchedEffect(expenseAddedType) {
+        val message = if (expenseAddedType == ExpenseAddedType.ADDED) {
+            navController.popBackStack()
+            "Expense Added"
+        } else {
+            "Duplicate Expense"
+        }
+        if (expenseAddedType != ExpenseAddedType.DEFAULT) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     Scaffold(
@@ -194,7 +209,7 @@ fun ExpenseEntryScreen(navController: NavHostController, viewModel: ExpenseViewM
             item {
                 SubmitWithAnimation(
                     "Add Expense",
-                    2000,
+                    0,
                     title.value.isNotBlank() && amount.value.toIntOrNull() != null && amount.value.toInt() > 0,
                     operation = {
                         keyboardController?.hide()
@@ -207,10 +222,7 @@ fun ExpenseEntryScreen(navController: NavHostController, viewModel: ExpenseViewM
                         )
                         viewModel.addExpense(expense)
                     }
-                ) {
-                    navController.popBackStack()
-                    Toast.makeText(context, "Expense Added", Toast.LENGTH_SHORT).show()
-                }
+                )
             }
         }
     }
