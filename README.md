@@ -76,3 +76,9 @@ A full-featured Smart Daily Expense Tracker module built with **Jetpack Compose*
 
 ### Apk download
 https://github.com/Anoop0712/ExpenseTrackerApp/releases/download/v1.0/app-debug.apk
+
+### AI usage summary
+1. I used ChatGPT to design and implement the Smart Daily Expense Tracker module using Jetpack Compose and MVVM(room database).
+2. It helped me to state handling, and UI layout for all key screens including the Expense Entry, List, and Report.
+3. I also used ChatGPT to implement CSV export, share intent functionality. 
+4. Additionally, I used it to debug issues with state management and to create reusable UI components like category pickers and animated lists
