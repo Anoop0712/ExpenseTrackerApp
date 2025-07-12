@@ -33,6 +33,10 @@ class ExpenseViewModel @Inject constructor(
     private val _expenseAdded = MutableStateFlow(ExpenseAddedType.DEFAULT)
     val expenseAdded: StateFlow<ExpenseAddedType> = _expenseAdded.asStateFlow()
 
+    fun resetExpenseAdded() {
+        _expenseAdded.value = ExpenseAddedType.DEFAULT
+    }
+
     fun loadExpensesForDate(date: LocalDate) {
         viewModelScope.launch {
             repository.getExpensesForDate(date).collect { list ->

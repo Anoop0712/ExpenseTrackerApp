@@ -86,6 +86,7 @@ fun ExpenseEntryScreen(navController: NavHostController, viewModel: ExpenseViewM
         if (expenseAddedType != ExpenseAddedType.DEFAULT) {
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
+        viewModel.resetExpenseAdded()
     }
 
     Scaffold(

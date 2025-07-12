@@ -68,13 +68,21 @@ fun ExpenseListScreen(navController: NavHostController, viewModel: ExpenseViewMo
             Box(modifier = Modifier.padding(16.dp)) {
                 Column(horizontalAlignment = Alignment.End) {
                     AnimatedVisibility(visible = fabExpanded) {
-                        FloatingActionButton(onClick = { navController.navigate("report") }) {
+                        FloatingActionButton(
+                            onClick = {
+                                navController.navigate("report")
+                                fabExpanded = !fabExpanded
+                            }) {
                             Icon(Icons.Default.DateRange, contentDescription = "Report")
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     AnimatedVisibility(visible = fabExpanded) {
-                        FloatingActionButton(onClick = { navController.navigate("entry") }) {
+                        FloatingActionButton(
+                            onClick = {
+                                navController.navigate("entry")
+                                fabExpanded = !fabExpanded
+                            }) {
                             Icon(Icons.Default.Add, contentDescription = "Add Expense")
                         }
                     }
@@ -116,7 +124,9 @@ fun ExpenseListScreen(navController: NavHostController, viewModel: ExpenseViewMo
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -209,7 +219,8 @@ private fun Item(
 ) {
     Card(
         modifier = Modifier
-            .fillMaxWidth().padding(8.dp),
+            .fillMaxWidth()
+            .padding(8.dp),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
